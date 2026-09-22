@@ -1,7 +1,7 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const garmentsRouter = require('./routes/garments');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const garmentsRouter = require("./routes/garments");
 
 const app = express();
 
@@ -11,11 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Closet Claim API is running.' });
+app.get("/", (req, res) => {
+  res.json({ status: "ok", message: "First Dibs API is running." });
 });
 
-app.use('/api/garments', garmentsRouter);
+app.use("/api/garments", garmentsRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

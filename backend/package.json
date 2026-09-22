@@ -1,7 +1,7 @@
 {
-  "name": "closet-claim-backend",
+  "name": "first-dibs-backend",
   "version": "1.0.0",
-  "description": "API for the closet-claim MVP",
+  "description": "API for the first-dibs MVP",
   "main": "src/index.js",
   "type": "commonjs",
   "scripts": {
