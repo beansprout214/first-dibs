@@ -17,12 +17,19 @@ function App() {
   }
 
   async function handleClaim(garmentId: number) {
-    setGarments(garments.map((garment) => {
-      if (garment.id === garmentId) {
-        return { ...garment, claimant_name : claimantName}
-      }
-      return garment;
-    }))
+    try {
+      await claimGarment(garmentId, claimantName);
+      setGarments(
+        garments.map((garment) => {
+          if (garment.id === garmentId) {
+            return { ...garment, claimant_name: claimantName };
+          }
+          return garment;
+        }),
+      );
+    } catch (error) {
+      console.warn("handleClaim encountered an error", error);
+    }
   }
 
   useEffect(() => {
