@@ -32,6 +32,25 @@ function App() {
     }
   }
 
+  async function handleUnclaim(garmentId: number) {
+    try {
+      await unclaimGarment(garmentId, claimantName);
+      setGarments(
+        garments.map((garment) => {
+          if (
+            garment.id === garmentId &&
+            garment.claimant_name == claimantName
+          ) {
+            return { ...garment, claimant_name: null };
+          }
+          return garment;
+        }),
+      );
+    } catch (error) {
+      console.warn("handleUnclaim encountered an error", error);
+    }
+  }
+
   useEffect(() => {
     async function loadGarments() {
       try {
@@ -80,10 +99,17 @@ function App() {
                     ) : (
                       <span />
                     )}
+                    {garment.claimant_name === claimantName ? (
+                      <button onClick={() => handleUnclaim(garment.id)}>
+                        Click to unclaim
+                      </button>
+                    ) : (
+                      <span />
+                    )}
                   </span>
                 ) : (
                   <button onClick={() => handleClaim(garment.id)}>
-                    Unclaimed
+                    Click to claim
                   </button>
                 )}
               </div>
