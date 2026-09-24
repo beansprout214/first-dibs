@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db");
+const checkAdminPassword = require("../middleware/checkAdminPassword");
 
 const router = express.Router();
 
@@ -88,6 +89,30 @@ router.post("/:id/unclaim", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to unclaim garment." });
+  }
+});
+
+router.post("/", checkAdminPassword, async (req, res) => {
+  const { name } = req.body;
+  const { size } = req.body;
+  const { description } = req.body;
+  const { photo_url } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: "name is required." });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO garments (name, size, description, photo_url)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, created_at`,
+      [name, size, description, photo_url],
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create garment." });
   }
 });
 
