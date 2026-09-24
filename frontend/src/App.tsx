@@ -7,18 +7,20 @@ function App() {
   const [claimantName, setClaimantName] = useState<string>("");
   const [nameInput, setNameInput] = useState<string>("");
   const [promptCleared, setPromptCleared] = useState<boolean>(false);
+  const [claimToken, setClaimToken] = useState<string | null>(null);
 
   function handleSetName() {
     if (nameInput.trim() === "") {
       return;
     }
+    setClaimToken(crypto.randomUUID());
     setClaimantName(nameInput);
     setPromptCleared(true);
   }
 
   async function handleClaim(garmentId: number) {
     try {
-      await claimGarment(garmentId, claimantName);
+      await claimGarment(garmentId, claimantName, claimToken);
       setGarments(
         garments.map((garment) => {
           if (garment.id === garmentId) {
@@ -34,7 +36,7 @@ function App() {
 
   async function handleUnclaim(garmentId: number) {
     try {
-      await unclaimGarment(garmentId, claimantName);
+      await unclaimGarment(garmentId, claimantName, claimToken);
       setGarments(
         garments.map((garment) => {
           if (

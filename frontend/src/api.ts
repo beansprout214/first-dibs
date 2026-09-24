@@ -15,11 +15,12 @@ export async function getGarments(): Promise<Garment[]> {
 export async function claimGarment(
   id: number,
   claimantName: string,
+  claimToken: string | null,
 ): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/garments/${id}/claim`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ claimantName }),
+    body: JSON.stringify({ claimantName, claimToken }),
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -30,11 +31,12 @@ export async function claimGarment(
 export async function unclaimGarment(
   id: number,
   claimantName: string,
+  claimToken: string | null,
 ): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/garments/${id}/unclaim`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ claimantName }),
+    body: JSON.stringify({ claimantName, claimToken }),
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

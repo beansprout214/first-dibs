@@ -12,9 +12,8 @@ CREATE TABLE IF NOT EXISTS garments (
 
 CREATE TABLE IF NOT EXISTS claims (
   id SERIAL PRIMARY KEY,
-  -- UNIQUE is what actually prevents two people from claiming the same garment.
-  -- The database itself will reject a second insert for the same garment_id.
   garment_id INTEGER UNIQUE NOT NULL REFERENCES garments(id) ON DELETE CASCADE,
   claimant_name TEXT NOT NULL,
-  claimed_at TIMESTAMP DEFAULT now()
+  claimed_at TIMESTAMP DEFAULT now(),
+  claim_token TEXT
 );
