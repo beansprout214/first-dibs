@@ -11,6 +11,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+});
+
 app.get("/", (req, res) => {
   res.json({ status: "ok", message: "First Dibs API is running." });
 });
