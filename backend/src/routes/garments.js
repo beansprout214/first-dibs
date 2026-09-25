@@ -99,6 +99,10 @@ router.post("/:id/unclaim", async (req, res) => {
   }
 });
 
+router.post("/verify", checkAdminPassword, (req, res) => {
+  res.json({ message: "Password verified." });
+});
+
 router.post(
   "/",
   upload.array("photos", 10),

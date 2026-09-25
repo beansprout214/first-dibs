@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Garment } from "./types/Garment";
-import { getGarments, claimGarment, unclaimGarment } from "./api.ts";
+import type { DraftGarment } from "./types/DraftGarment";
+import {
+  createGarment,
+  getGarments,
+  claimGarment,
+  unclaimGarment,
+  verifyAdminPassword,
+} from "./api.ts";
 
 function App() {
   const [garments, setGarments] = useState<Garment[]>([]);
@@ -9,6 +16,37 @@ function App() {
   const [promptCleared, setPromptCleared] = useState<boolean>(false);
   const [claimToken, setClaimToken] = useState<string | null>(null);
 
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    return localStorage.getItem("isAdmin") == "true";
+  });
+  const [adminPassword, setAdminPassword] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const [draftGarments, setDraftGarments] = useState<DraftGarment[]>([]);
+  const [currName, setCurrName] = useState<string>("");
+  const [currSize, setCurrSize] = useState<string>("");
+  const [currDescription, setCurrDescription] = useState<string>("");
+  const [currFiles, setCurrFiles] = useState<File[]>([]);
+
+  async function handleVerifyPassword() {
+    try {
+      await verifyAdminPassword(adminPassword);
+      setIsAdmin(true);
+      localStorage.setItem("isAdmin", "true");
+      setErrorMessage("");
+    } catch (error) {
+      console.log("verifyAdminPassword encountered an error", error);
+      setErrorMessage("Failed to verify admin password.");
+    }
+  }
+
+  function clearFields() {
+    setCurrName("");
+    setCurrSize("");
+    setCurrDescription("");
+    setCurrFiles([]);
+  }
+
   function handleSetName() {
     if (nameInput.trim() === "") {
       return;
@@ -16,6 +54,66 @@ function App() {
     setClaimToken(crypto.randomUUID());
     setClaimantName(nameInput);
     setPromptCleared(true);
+  }
+
+  function addToDrafts() {
+    // Reject drafts with no name, size, or files
+    if (currName.trim() === "") {
+      return;
+    }
+    if (currFiles.length == 0) {
+      return;
+    }
+
+    const newGarment: DraftGarment = {
+      name: currName,
+      size: currSize || null,
+      description: currDescription || null,
+      files: currFiles,
+    };
+
+    setDraftGarments([...draftGarments, newGarment]);
+
+    clearFields();
+  }
+
+  function handleRemoveDrafts(index: number) {
+    setDraftGarments(draftGarments.filter((_, i) => i !== index));
+  }
+
+  function handleEditDraft(index: number) {
+    const draft = draftGarments[index];
+    setCurrName(draft.name);
+    setCurrSize(draft.size || "");
+    setCurrDescription(draft.description || "");
+    setCurrFiles(draft.files);
+    setDraftGarments(draftGarments.filter((_, i) => i !== index));
+  }
+
+  async function submitAllDrafts() {
+    const failed: DraftGarment[] = [];
+    for (const draftGarment of draftGarments) {
+      try {
+        await createGarment(
+          draftGarment.name,
+          draftGarment.size,
+          draftGarment.description,
+          draftGarment.files,
+          adminPassword,
+        );
+      } catch (error) {
+        failed.push(draftGarment);
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage("Garment creation encountered an error.");
+        }
+      }
+    }
+    setDraftGarments(failed);
+    clearFields();
+
+    loadGarments();
   }
 
   async function handleClaim(garmentId: number) {
@@ -31,6 +129,11 @@ function App() {
       );
     } catch (error) {
       console.warn("handleClaim encountered an error", error);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("handleClaim encountered an error");
+      }
     }
   }
 
@@ -53,15 +156,16 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    async function loadGarments() {
-      try {
-        const data = await getGarments();
-        setGarments(data);
-      } catch (error) {
-        console.warn("useEffect failed to run getGarments", error);
-      }
+  async function loadGarments() {
+    try {
+      const data = await getGarments();
+      setGarments(data);
+    } catch (error) {
+      console.warn("useEffect failed to run getGarments", error);
     }
+  }
+
+  useEffect(() => {
     loadGarments();
   }, []);
 
@@ -119,6 +223,65 @@ function App() {
               </div>
             </div>
           ))}
+          {isAdmin && (
+            <div>
+              <div>
+                {draftGarments.map((draftGarment, index) => (
+                  <div key={index}>
+                    <p>{draftGarment.name}</p>
+                    {draftGarment.size && <p>{draftGarment.size}</p>}
+                    {draftGarment.description && (
+                      <p>{draftGarment.description}</p>
+                    )}
+                    <p>{draftGarment.files.length}</p>
+                    <button onClick={() => handleEditDraft(index)}>Edit</button>
+
+                    <button onClick={() => handleRemoveDrafts(index)}>
+                      Eviscerate
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <input
+                  value={currName}
+                  onChange={(e) => setCurrName(e.target.value)}
+                />
+                <input
+                  value={currSize}
+                  onChange={(e) => setCurrSize(e.target.value)}
+                />
+                <input
+                  value={currDescription}
+                  onChange={(e) => setCurrDescription(e.target.value)}
+                />
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files)
+                      setCurrFiles(Array.from(e.target.files));
+                  }}
+                />
+                <button onClick={addToDrafts}>Submit</button>
+                {draftGarments.length > 0 && (
+                  <button onClick={submitAllDrafts}>Upload all drafts</button>
+                )}
+              </div>
+            </div>
+          )}
+          <div>
+            <input
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+            />
+            <button onClick={handleVerifyPassword}>Submit</button>
+          </div>
+          {errorMessage && (
+            <div>
+              <span>{errorMessage}</span>
+            </div>
+          )}
         </div>
       )}
     </div>
