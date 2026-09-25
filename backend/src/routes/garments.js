@@ -1,6 +1,11 @@
 const express = require("express");
 const pool = require("../db");
 const checkAdminPassword = require("../middleware/checkAdminPassword");
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const upload = require("../middleware/upload");
+const s3Client = require("../r2");
+const crypto = require("crypto");
+const path = require("path");
 
 const router = express.Router();
 
@@ -94,28 +99,54 @@ router.post("/:id/unclaim", async (req, res) => {
   }
 });
 
-router.post("/", checkAdminPassword, async (req, res) => {
-  const { name } = req.body;
-  const { size } = req.body;
-  const { description } = req.body;
-  const { photo_url } = req.body;
+router.post(
+  "/",
+  upload.array("photos", 10),
+  checkAdminPassword,
+  async (req, res) => {
+    const { name } = req.body;
+    const { size } = req.body;
+    const { description } = req.body;
 
-  if (!name || !name.trim()) {
-    return res.status(400).json({ error: "name is required." });
-  }
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: "name is required." });
+    }
 
-  try {
-    const result = await pool.query(
-      `INSERT INTO garments (name, size, description, photo_url)
-       VALUES ($1, $2, $3, $4)
+    try {
+      const result = await pool.query(
+        `INSERT INTO garments (name, size, description)
+       VALUES ($1, $2, $3)
        RETURNING id, created_at`,
-      [name, size, description, photo_url],
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to create garment." });
-  }
-});
+        [name, size, description],
+      );
+
+      const { id } = result.rows[0];
+
+      for (const file of req.files) {
+        const key = crypto.randomUUID() + path.extname(file.originalname);
+
+        const uploadResult = await s3Client.send(
+          new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+          }),
+        );
+
+        const photoUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+
+        await pool.query(
+          `INSERT INTO garment_photos (garment_id, photo_url) VALUES ($1, $2)`,
+          [id, photoUrl],
+        );
+      }
+      res.status(201).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to create garment." });
+    }
+  },
+);
 
 module.exports = router;
