@@ -91,7 +91,9 @@ function App() {
               <p>{garment.name}</p>
               <p>{garment.size}</p>
               <p>{garment.description}</p>
-              {garment.photo_url && <img src={garment.photo_url} />}
+              {garment.photo_urls.map((photo_url, index) => (
+                <img key={index} src={photo_url} />
+              ))}
               <div>
                 {garment.claimant_name ? (
                   <span>

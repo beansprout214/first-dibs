@@ -15,11 +15,13 @@ router.get("/", async (req, res) => {
         g.name,
         g.size,
         g.description,
-        g.photo_url,
         c.claimant_name,
-        c.claimed_at
+        c.claimed_at,
+        coalesce(array_agg(p.photo_url) FILTER (WHERE p.photo_url IS NOT NULL),'{}') AS photo_urls
       FROM garments g
       LEFT JOIN claims c ON c.garment_id = g.id
+      LEFT JOIN garment_photos p on p.garment_id = g.id
+      GROUP BY g.id, g.name, g.size, g.description, c.claimant_name, c.claimed_at
       ORDER BY g.id ASC
     `);
     res.json(result.rows);
