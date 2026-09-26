@@ -16,7 +16,9 @@ function App() {
     return localStorage.getItem("claimantName") || "";
   });
   const [nameInput, setNameInput] = useState<string>("");
-  const [promptCleared, setPromptCleared] = useState<boolean>(false);
+  const [promptCleared, setPromptCleared] = useState<boolean>(() => {
+    return localStorage.getItem("promptCleared") == "true";
+  });
   const [claimToken, setClaimToken] = useState<string | null>(() => {
     return localStorage.getItem("claimToken") || "";
   });
@@ -83,6 +85,7 @@ function App() {
     setClaimantName(nameInput);
     localStorage.setItem("claimantName", nameInput);
     localStorage.setItem("claimToken", uuid);
+    localStorage.setItem("promptCleared", "true");
     setPromptCleared(true);
   }
 
