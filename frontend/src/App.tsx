@@ -12,10 +12,14 @@ import "./App.css";
 
 function App() {
   const [garments, setGarments] = useState<Garment[]>([]);
-  const [claimantName, setClaimantName] = useState<string>("");
+  const [claimantName, setClaimantName] = useState<string>(() => {
+    return localStorage.getItem("claimantName") || "";
+  });
   const [nameInput, setNameInput] = useState<string>("");
   const [promptCleared, setPromptCleared] = useState<boolean>(false);
-  const [claimToken, setClaimToken] = useState<string | null>(null);
+  const [claimToken, setClaimToken] = useState<string | null>(() => {
+    return localStorage.getItem("claimToken") || "";
+  });
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
@@ -74,8 +78,11 @@ function App() {
     if (nameInput.trim() === "") {
       return;
     }
-    setClaimToken(crypto.randomUUID());
+    const uuid: string = crypto.randomUUID();
+    setClaimToken(uuid);
     setClaimantName(nameInput);
+    localStorage.setItem("claimantName", nameInput);
+    localStorage.setItem("claimToken", uuid);
     setPromptCleared(true);
   }
 
