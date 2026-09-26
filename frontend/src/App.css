@@ -1,0 +1,799 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0f0f0f;
+  color: #e8e8e8;
+}
+
+#root {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.name-prompt-screen {
+  width: 100%;
+  min-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.name-prompt {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+  text-align: center;
+}
+
+.name-prompt-description {
+  color: #b0b0b0;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}
+
+.name-prompt h2 {
+  font-size: 24px;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.name-prompt input {
+  padding: 12px 16px;
+  font-size: 16px;
+  background-color: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  color: #e8e8e8;
+  transition: border-color 0.2s;
+}
+
+.name-prompt input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.name-prompt button {
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.name-prompt button:hover {
+  background-color: #4f46e5;
+}
+
+/* Main app container */
+.main-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.header-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-controls input {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #e8e8e8;
+}
+
+.header-controls input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.header-controls button {
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #333;
+  color: #e8e8e8;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-controls button:hover {
+  background-color: #444;
+}
+
+/* Search section */
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  background-color: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  color: #e8e8e8;
+}
+
+.search-section input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* Garment list */
+.garments-section {
+  margin-bottom: 32px;
+}
+
+.garments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.garment-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  animation: slideIn 0.3s ease-out;
+}
+
+.garment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.garment-images {
+  position: relative;
+  background-color: #0f0f0f;
+  overflow: hidden;
+  border-bottom: 1px solid #333;
+}
+
+/* Fixed aspect ratio instead of a fixed pixel/viewport height — this is what
+   keeps every card's image area the same shape regardless of the photo's
+   own dimensions, so object-fit: cover has no empty space to fill. */
+.garment-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.garment-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+
+.image-nav {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.image-nav button {
+  pointer-events: all;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-nav button:hover {
+  background-color: rgba(99, 102, 241, 0.8);
+}
+
+.image-counter {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #e8e8e8;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.garment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.garment-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.garment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.garment-size::before {
+  content: "Size: ";
+  font-weight: 600;
+  color: #e8e8e8;
+}
+
+.garment-description::before {
+  content: "Description: ";
+  font-weight: 600;
+  color: #e8e8e8;
+}
+
+.garment-claim-status {
+  margin-top: auto;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.garment-claim-status.claimed {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  border: 1px solid #4ade80;
+}
+
+.garment-claim-status.unclaimed {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #d1d5db;
+  border: 1px solid #9ca3af;
+}
+
+.claim-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  animation: claimPulse 0.3s ease-out;
+}
+
+.claim-button:hover {
+  background-color: #4f46e5;
+}
+
+.unclaim-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.unclaim-button:hover {
+  background-color: #dc2626;
+}
+
+@keyframes claimPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Empty state — shown when a search returns nothing, or there are no
+   garments at all yet. */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  background-color: #1a1a1a;
+  border: 1px dashed #333;
+  border-radius: 8px;
+  color: #888;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #e8e8e8;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Admin section */
+.admin-section {
+  background-color: #1a1a1a;
+  border: 2px solid #6366f1;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.admin-section h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #6366f1;
+  font-size: 20px;
+}
+
+/* Draft list */
+.drafts-container {
+  margin-bottom: 20px;
+}
+
+.drafts-container h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #b0b0b0;
+}
+
+.draft-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #0f0f0f;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.draft-item {
+  background-color: #2a2a2a;
+  padding: 12px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideIn 0.2s ease-out;
+}
+
+.draft-info {
+  flex: 1;
+}
+
+.draft-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.draft-meta {
+  font-size: 12px;
+  color: #888;
+}
+
+.draft-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.draft-actions button {
+  padding: 6px 12px;
+  font-size: 12px;
+  background-color: #333;
+  color: #e8e8e8;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.draft-actions button:hover {
+  background-color: #444;
+}
+
+/* Admin form */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background-color: #0f0f0f;
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b0b0b0;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+  padding: 10px 12px;
+  font-size: 14px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #e8e8e8;
+  transition: border-color 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.file-list {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.file-list-item {
+  padding: 4px 0;
+  word-break: break-word;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.form-buttons button {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-add {
+  background-color: #333;
+  color: #e8e8e8;
+}
+
+.btn-add:hover {
+  background-color: #444;
+}
+
+.btn-submit {
+  background-color: #6366f1;
+  color: white;
+}
+
+.btn-submit:hover {
+  background-color: #4f46e5;
+}
+
+/* Password section */
+.password-section {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.password-section h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.password-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.password-form input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 14px;
+  background-color: #0f0f0f;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #e8e8e8;
+  transition: border-color 0.2s;
+}
+
+.password-form input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.password-form button {
+  padding: 10px 24px;
+  font-size: 14px;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.password-form button:hover {
+  background-color: #4f46e5;
+}
+
+/* Messages */
+.error-message {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-message {
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid #22c55e;
+  color: #86efac;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Lightbox */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 40px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox-image {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e8e8e8;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  z-index: 1001;
+}
+
+.lightbox-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.lightbox-nav button {
+  pointer-events: all;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 22px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-nav button:hover {
+  background-color: rgba(99, 102, 241, 0.8);
+}
+
+.lightbox-counter {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #e8e8e8;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .garments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .header-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .header-controls input {
+    width: 100%;
+  }
+
+  .password-form {
+    flex-direction: column;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+}
+.lightbox-overlay.closing {
+  animation: fadeOut 0.2s ease-out forwards;
+  pointer-events: none;
+}
+
+.lightbox-overlay.closing .lightbox-content {
+  animation: scaleOut 0.2s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
