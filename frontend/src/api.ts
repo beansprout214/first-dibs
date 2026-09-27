@@ -2,7 +2,7 @@ import type { Garment } from "./types/Garment";
 
 // While developing locally, this points at your Express server directly.
 // We'll change this to an environment variable once we deploy.
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export async function createGarment(
   name: string,
